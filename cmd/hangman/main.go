@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"hangman/internal/game"
 	"hangman/internal/menu"
 	"hangman/internal/utils"
-	"os"
 )
 
 func main() {
@@ -31,9 +32,11 @@ func main() {
 		choice := menu.ShowMainMenu()
 		switch choice {
 		case "1":
-			difficulty := menu.SelectDifficulty()
-			g := game.NewGame(words[difficulty], difficulty)
-			g.Play()
+			difficulty, startGame := menu.SelectDifficulty()
+			if startGame {
+				g := game.NewGame(words[difficulty], difficulty)
+				g.Play()
+			}
 		case "2":
 			menu.ShowRules()
 		case "3":

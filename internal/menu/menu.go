@@ -4,40 +4,62 @@ import (
 	"fmt"
 	"hangman/internal/game"
 	"hangman/internal/input"
+	"hangman/internal/utils"
+	"strings"
 	"time"
 
 	"github.com/fatih/color"
 )
 
-func ShowMainMenu() string {
-	fmt.Println("\n===== Main Menu =====")
-	fmt.Println("1. Start New Game")
-	fmt.Println("2. Show Rules")
-	fmt.Println("3. Quit")
-	return input.GetMenuChoice("Enter your choice (1-3): ", 3)
+const menuWidth = 50
+
+func drawHorizontalLine(left, right string) {
+	fmt.Print(utils.Vert(left))
+	fmt.Print(utils.Vert(strings.Repeat("═", menuWidth-2)))
+	fmt.Println(utils.Vert(right))
 }
 
-func SelectDifficulty() game.Difficulty {
-	fmt.Println("\n===== Select Difficulty =====")
-	fmt.Println("1. Easy")
-	fmt.Println("2. Medium")
-	fmt.Println("3. Hard")
-	fmt.Println("4. Return to main menu")
-	choice := input.GetMenuChoice("Enter your choice (1-4): ", 4)
+func showTableau(title string, options []string) string {
+	drawHorizontalLine("╔", "╗")
+	utils.AfficherLigneMenu(title, menuWidth)
+	drawHorizontalLine("╠", "╣")
+	for i, option := range options {
+		utils.AfficherLigneMenu(fmt.Sprintf("%d. %s", i+1, option), menuWidth)
+	}
+	drawHorizontalLine("╚", "╝")
+	return input.GetMenuChoice(fmt.Sprintf("Enter your choice (1-%d): ", len(options)), len(options))
+}
+
+func ShowMainMenu() string {
+	return showTableau("Main Menu", []string{
+		"Start New Game",
+		"Show Rules",
+		"Quit",
+	})
+}
+
+func SelectDifficulty() (game.Difficulty, bool) {
+	choice := showTableau("Select Difficulty", []string{
+		"Easy",
+		"Medium",
+		"Hard",
+		"Return to main menu",
+	})
 
 	switch choice {
 	case "1":
-		return game.Easy
+		return game.Easy, true
 	case "2":
-		return game.Medium
+		return game.Medium, true
 	case "3":
-		return game.Hard
+		return game.Hard, true
 	case "4":
 		MessageRapide("Returning to main menu...", 50, "vert")
+		return "", false
 	default:
 		MessageRapide("Invalid choice, returning to main menu...", 50, "rouge")
+		return "", false
 	}
-	return game.Easy
 }
 
 func ShowRules() {
@@ -52,7 +74,7 @@ func ShowRules() {
 	MessageRapide("5. Guessing an incorrect word reduces your remaining attempts by 2.", 20, "vert")
 	MessageRapide("6. The game ends when you guess the word correctly or run out of attempts.", 20, "vert")
 	MessageRapide("\nPress Enter to return to the main menu...", 20, "vert")
-	input.GetPlayerGuess(nil)
+	fmt.Scanln()
 }
 
 func MessageRapide(message string, vitesse int, nomCouleur string) {
