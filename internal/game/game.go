@@ -77,8 +77,8 @@ func (g *Game) IsGameOver() bool {
 }
 
 func (g *Game) DisplayGameState() {
-	fmt.Print("\033[2J")  // Clear the screen
-	fmt.Print("\033[H")   // Move cursor to top-left corner
+	fmt.Print("\033[2J")  
+	fmt.Print("\033[H")   
 
 	utils.PrintHangman(DifficultyConfig[g.difficulty].MaxTries - g.remainingTries)
 
