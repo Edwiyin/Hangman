@@ -5,9 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
-
-	"github.com/fatih/color"
 )
 
 func ReadWordsFile(filename string) ([]string, error) {
@@ -54,29 +51,11 @@ func Bleu(texte string) string {
 }
 
 func AfficherLigneMenu(texte string, largeur int) {
-	espaces := largeur - len([]rune(texte)) - 6
+	textLength := len([]rune(texte))
+	espaces := largeur - textLength - 6
+	if espaces < 0 {
+		espaces = 0
+		texte = string([]rune(texte)[:largeur-6])
+	}
 	fmt.Printf("%s║ %s%s ║%s\n", Vert("║"), Cyan(texte), strings.Repeat(" ", espaces), Vert("║"))
-}
-
-func MessageRapide(message string, vitesse int, nomCouleur string) {
-	c := color.New(color.FgWhite)
-	switch nomCouleur {
-	case "vert":
-		c = color.New(color.FgGreen)
-	case "rouge":
-		c = color.New(color.FgRed)
-	case "bleu":
-		c = color.New(color.FgBlue)
-	case "cyan":
-		c = color.New(color.FgCyan)
-	case "jaune":
-		c = color.New(color.FgYellow)
-	}
-
-	for _, char := range message {
-		fmt.Print(c.Sprint(string(char)))
-		time.Sleep(time.Duration(vitesse) * time.Millisecond)
-	}
-
-	fmt.Println()
 }

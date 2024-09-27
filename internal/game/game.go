@@ -56,21 +56,20 @@ func (g *Game) ProcessLetterGuess(letter rune) {
 	g.guessedLetters[letter] = true
 	if !g.word.RevealLetter(letter) {
 		g.remainingTries--
-		fmt.Println("Incorrect guess!")
+		fmt.Println(utils.Rouge("Incorrect guess!"))
 	} else {
-		fmt.Println("Correct guess!")
+		fmt.Println(utils.Vert("Correct guess!"))
 	}
 }
 
 func (g *Game) ProcessWordGuess(word string) {
 	if g.word.Guess(word) {
 		g.word.RevealAllLetters()
-		fmt.Println("Correct word guess!")
+		fmt.Println(utils.Vert("Correct word guess!"))
 	} else {
 		g.remainingTries -= 2
-		fmt.Println("Incorrect word guess! You lose 2 tries.")
+		fmt.Println(utils.Rouge("Incorrect word guess! You lose 2 tries."))
 	}
-	fmt.Printf("Guessed letters: %s\n", mapKeysToString(g.guessedLetters))
 }
 
 func (g *Game) IsGameOver() bool {
@@ -78,18 +77,36 @@ func (g *Game) IsGameOver() bool {
 }
 
 func (g *Game) DisplayGameState() {
-	fmt.Printf("\nWord: %s\n", g.word.GetDisplayWord())
-	fmt.Printf("Remaining tries: %d\n", g.remainingTries)
-	fmt.Printf("Guessed letters: %s\n", mapKeysToString(g.guessedLetters))
+	fmt.Print("\033[2J")  // Clear the screen
+	fmt.Print("\033[H")   // Move cursor to top-left corner
+
 	utils.PrintHangman(DifficultyConfig[g.difficulty].MaxTries - g.remainingTries)
+
+	fmt.Println(strings.Repeat("-", 40))
+	fmt.Printf("Word: %s\n", utils.Cyan(g.word.GetDisplayWord()))
+	fmt.Printf("Remaining tries: %s\n", utils.Jaune(fmt.Sprintf("%d", g.remainingTries)))
+	fmt.Printf("Guessed letters: %s\n", utils.Bleu(mapKeysToString(g.guessedLetters)))
+	fmt.Println(strings.Repeat("-", 40))
 }
 
 func (g *Game) DisplayGameResult() {
 	if g.word.IsFullyRevealed() {
-		fmt.Println("Congratulations! You've won!")
+		fmt.Println(utils.Vert("Congratulations! You've won!"))
+		fmt.Println(utils.Vert(`
+	        _____________ 
+                '._==_==_=_.'
+               .-\:        /-.
+              | (|:.      |) |
+               '-|:.      |-'
+                 \::.     /
+                  '::. .'
+                    ) (
+                  _.' '._
+                 '-------'
+		`))
 	} else {
-		fmt.Printf("Game over! The word was: %s\n", g.word.GetFullWord())
-		fmt.Println("Better luck next time!")
+		fmt.Printf("%s %s\n", utils.Rouge("Game over! The word was:"), utils.Cyan(g.word.GetFullWord()))
+		fmt.Println(utils.Rouge("Better luck next time!"))
 		fmt.Println(utils.Rouge(`
 		 ._________.
 		 |/   |    
@@ -99,8 +116,7 @@ func (g *Game) DisplayGameResult() {
 		 |   / \   
 		 |       
 	     ____|____
-
 		`))
-		time.Sleep(2 * time.Second)
 	}
+	time.Sleep(5 * time.Second)
 }
