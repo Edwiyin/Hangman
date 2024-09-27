@@ -59,3 +59,9 @@ func AfficherLigneMenu(texte string, largeur int) {
 	}
 	fmt.Printf("%s║ %s%s ║%s\n", Vert("║"), Cyan(texte), strings.Repeat(" ", espaces), Vert("║"))
 }
+
+func ResetColor() string {
+
+    return "\033[0m"
+
+}

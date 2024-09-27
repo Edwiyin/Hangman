@@ -40,7 +40,7 @@ func main() {
 		case "2":
 			menu.ShowRules()
 		case "3":
-			fmt.Println("Thanks for playing Hangman! Goodbye!")
+			fmt.Println("Thanks for playing Hangoman! Goodbye!")
 			return
 		}
 	}

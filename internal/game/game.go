@@ -8,17 +8,19 @@ import (
 	"time"
 )
 
-func mapKeysToString(m map[rune]bool) string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, string(k))
+func mapKeysToString(m map[rune]string) []string {
+	var array []string = []string{}
+	// keys := make([]string, 0, len(m))
+	for _, v := range m {
+		array = append(array, string(v))
+		// keys = append(keys, v+string(k)+utils.ResetColor())
 	}
-	return strings.Join(keys, ", ")
+	return array
 }
 
 type Game struct {
 	word           *Word
-	guessedLetters map[rune]bool
+	guessedLetters map[rune]string
 	remainingTries int
 	difficulty     Difficulty
 }
@@ -27,7 +29,7 @@ func NewGame(words []string, difficulty Difficulty) *Game {
 	settings := DifficultyConfig[difficulty]
 	return &Game{
 		word:           NewWord(words),
-		guessedLetters: make(map[rune]bool),
+		guessedLetters: make(map[rune]string),
 		remainingTries: settings.MaxTries,
 		difficulty:     difficulty,
 	}
@@ -40,7 +42,11 @@ func (g *Game) Play() {
 
 	for !g.IsGameOver() {
 		g.DisplayGameState()
-		guess := input.GetPlayerGuess(g.guessedLetters)
+		guessedLettersBool := make(map[rune]bool)
+		for k := range g.guessedLetters {
+			guessedLettersBool[k] = true
+		}
+		guess := input.GetPlayerGuess(guessedLettersBool)
 
 		if len(guess) == 1 {
 			g.ProcessLetterGuess(rune(guess[0]))
@@ -53,12 +59,13 @@ func (g *Game) Play() {
 }
 
 func (g *Game) ProcessLetterGuess(letter rune) {
-	g.guessedLetters[letter] = true
-	if !g.word.RevealLetter(letter) {
+	if g.word.RevealLetter(letter) {
+		g.guessedLetters[letter] = utils.Vert(string(letter))
+		fmt.Println(utils.Vert("Correct guess!"))
+	} else {
+		g.guessedLetters[letter] = utils.Rouge(string(letter))
 		g.remainingTries--
 		fmt.Println(utils.Rouge("Incorrect guess!"))
-	} else {
-		fmt.Println(utils.Vert("Correct guess!"))
 	}
 }
 
@@ -77,16 +84,30 @@ func (g *Game) IsGameOver() bool {
 }
 
 func (g *Game) DisplayGameState() {
-	fmt.Print("\033[2J")  
-	fmt.Print("\033[H")   
+	fmt.Print("\033[2J")
+	fmt.Print("\033[H")
 
 	utils.PrintHangman(DifficultyConfig[g.difficulty].MaxTries - g.remainingTries)
 
 	fmt.Println(strings.Repeat("-", 40))
 	fmt.Printf("Word: %s\n", utils.Cyan(g.word.GetDisplayWord()))
 	fmt.Printf("Remaining tries: %s\n", utils.Jaune(fmt.Sprintf("%d", g.remainingTries)))
-	fmt.Printf("Guessed letters: %s\n", utils.Bleu(mapKeysToString(g.guessedLetters)))
+	fmt.Printf("Guessed letters: ")
+	array := mapKeysToString(g.guessedLetters)
+	for _, v := range array {
+		fmt.Printf("%s ", v)
+	}
+	fmt.Printf("\n")
 	fmt.Println(strings.Repeat("-", 40))
+}
+
+func (g *Game) CheckGuessedLetters(input string) bool {
+	for _, letter := range g.guessedLetters {
+		if letter == input {
+			return true
+		}
+	}
+	return false
 }
 
 func (g *Game) DisplayGameResult() {
